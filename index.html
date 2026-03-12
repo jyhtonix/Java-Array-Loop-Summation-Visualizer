@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Java Array Loop & Summation Visualizer</title>
+<style>
+body{ font-family:Arial; margin:40px; text-align:center; }
+.panel{ border:1px solid #ccc; padding:15px; margin-bottom:20px; display:inline-block; }
+.arrayBox{ display:inline-block; width:70px; height:70px; border:2px solid black; margin:4px; text-align:center; }
+.highlight{ background:yellow; }
+table{ border-collapse:collapse; margin:auto; }
+td{ width:70px; height:70px; border:2px solid black; text-align:center; font-weight:bold; }
+.highlight2D{ background:orange; }
+button{ padding:8px 16px; margin:5px; }
+.sumBox{ font-size:22px; font-weight:bold; color:#d35400; margin-top:10px; }
+.error{ color:red; font-weight:bold; }
+</style>
+</head>
+<body>
+<h2>Java Array Loop & Summation Visualizer</h2>
+<div class="error" id="errorMsg"></div>
+<hr>
+<h2>1D Array</h2>
+<div class="panel">
+Array Size <input id="size1D" value="5">
+<button onclick="create1D()">Create</button>
+<div id="arrayInput1D"></div>
+<br>
+Start i <input id="startI1D" value="0"> End i <input id="endI1D" value="4">
+<br><br>
+Increment <input id="inc1D" value="1"> Decrement <input id="dec1D" value="0">
+<br><br>
+Initial Sum <input id="sum1DInitial" value="0">
+<br><br>
+<button onclick="start1D()">Start</button>
+<button onclick="step1D()">Next Step</button>
+<button onclick="reset1D()">Reset</button>
+</div>
+<div id="arrayDisplay1D"></div>
+<div id="status1D"></div>
+<div class="sumBox" id="sumDisplay1D"></div>
+<hr>
+<h2>2D Array</h2>
+<div class="panel">
+Rows <input id="rows2D" value="3"> Columns <input id="cols2D" value="3">
+<button onclick="create2D()">Create</button>
+<div id="input2D"></div>
+<br>
+Start i <input id="startI2D" value="0"> End i <input id="endI2D" value="2">
+<br>
+Start j <input id="startJ2D" value="0"> End j <input id="endJ2D" value="2">
+<br><br>
+Increment i <input id="incI2D" value="1"> Decrement i <input id="decI2D" value="0">
+<br>
+Increment j <input id="incJ2D" value="1"> Decrement j <input id="decJ2D" value="0">
+<br><br>
+Initial Sum <input id="sum2DInitial" value="0">
+<br><br>
+<button onclick="start2D()">Start</button>
+<button onclick="step2D()">Next Step</button>
+<button onclick="reset2D()">Reset</button>
+</div>
+<div id="display2D"></div>
+<div id="status2D"></div>
+<div class="sumBox" id="sumDisplay2D"></div>
+<script>
+/* ---------------- ERROR ---------------- */
+function showError(msg){
+    document.getElementById("errorMsg").innerHTML=msg;
+}
+function clearError(){
+    document.getElementById("errorMsg").innerHTML="";
+}
+/* ---------------- 1D ARRAY ---------------- */
+let arr1D=[];
+let i1D;
+let end1D;
+let step1DValue;
+let sum1D;
+
+function create1D(){
+    clearError();
+    let size=parseInt(document.getElementById("size1D").value);
+    if(isNaN(size)||size<=0){
+        showError("Invalid array size.");
+        return;
+    }
+    let html="";
+    for(let i=0;i<size;i++){
+        html+=`Index ${i} <input id="v${i}" value="0"><br>`;
+    }
+    document.getElementById("arrayInput1D").innerHTML=html;
+}
+function start1D(){
+    clearError();
+    let size=parseInt(document.getElementById("size1D").value);
+    arr1D=[];
+    for(let k=0;k<size;k++){
+        let val=parseFloat(document.getElementById("v"+k).value);
+        if(isNaN(val)){
+            showError("Array values must be numeric.");
+            return;
+        }
+        arr1D.push(val);
+    }
+    i1D=parseInt(document.getElementById("startI1D").value);
+    end1D=parseInt(document.getElementById("endI1D").value);
+    let inc=parseInt(document.getElementById("inc1D").value);
+    let dec=parseInt(document.getElementById("dec1D").value);
+    if(inc>0 && dec>0){
+        showError("Use either Increment or Decrement, not both.");
+        return;
+    }
+    if(inc===0 && dec===0){
+        showError("Increment or Decrement must be non-zero.");
+        return;
+    }
+    step1DValue = (inc>0)?inc:-dec;
+    sum1D=parseFloat(document.getElementById("sum1DInitial").value)||0;
+    draw1D(-1);
+    document.getElementById("sumDisplay1D").innerHTML="sum = "+sum1D;
+}
+function step1D(){
+    if((step1DValue>0 && i1D>end1D) || (step1DValue<0 && i1D<end1D)){
+        document.getElementById("status1D").innerHTML="Loop finished.";
+        return;
+    }
+    let value=arr1D[i1D];
+    let oldSum=sum1D;
+    sum1D+=value;
+    draw1D(i1D);
+    document.getElementById("status1D").innerHTML= "i = "+i1D+" accessing arr["+i1D+"] = "+value;
+    document.getElementById("sumDisplay1D").innerHTML= "sum = "+oldSum+" + "+value+" = "+sum1D;
+    i1D+=step1DValue;
+}
+function draw1D(h){
+    let html="";
+    for(let k=0;k<arr1D.length;k++){
+        let cls="arrayBox";
+        if(k===h) cls+=" highlight";
+        html+=`<div class="${cls}">[${k}]<br>${arr1D[k]}</div>`;
+    }
+    document.getElementById("arrayDisplay1D").innerHTML=html;
+}
+function reset1D(){
+    arr1D=[];
+    document.getElementById("arrayDisplay1D").innerHTML="";
+    document.getElementById("status1D").innerHTML="";
+    document.getElementById("sumDisplay1D").innerHTML="";
+    document.getElementById("arrayInput1D").innerHTML="";
+    clearError();
+}
+/* ---------------- 2D ARRAY ---------------- */
+let arr2D=[];
+let rows2D;
+let cols2D;
+let i2D;
+let j2D;
+let startJ2D;
+let endI2D;
+let endJ2D;
+let stepI2D;
+let stepJ2D;
+let sum2D;
+
+function create2D(){
+    clearError();
+    rows2D=parseInt(document.getElementById("rows2D").value);
+    cols2D=parseInt(document.getElementById("cols2D").value);
+    if(isNaN(rows2D)||isNaN(cols2D)||rows2D<=0||cols2D<=0){
+        showError("Invalid rows or columns.");
+        return;
+    }
+    let html="";
+    for(let r=0;r<rows2D;r++){
+        for(let c=0;c<cols2D;c++){
+            html+=`[${r}][${c}] <input id="m${r}_${c}" value="0"> `;
+        }
+        html+="<br>";
+    }
+    document.getElementById("input2D").innerHTML=html;
+}
+function start2D(){
+    clearError();
+    arr2D=[];
+    for(let r=0;r<rows2D;r++){
+        let row=[];
+        for(let c=0;c<cols2D;c++){
+            let val=parseFloat(document.getElementById(`m${r}_${c}`).value);
+            if(isNaN(val)){
+                showError("Matrix values must be numeric.");
+                return;
+            }
+            row.push(val);
+        }
+        arr2D.push(row);
+    }
+    i2D=parseInt(document.getElementById("startI2D").value);
+    endI2D=parseInt(document.getElementById("endI2D").value);
+    j2D=parseInt(document.getElementById("startJ2D").value);
+    startJ2D = j2D;  // Store the starting j value
+    endJ2D=parseInt(document.getElementById("endJ2D").value);
+    let incI=parseInt(document.getElementById("incI2D").value);
+    let decI=parseInt(document.getElementById("decI2D").value);
+    let incJ=parseInt(document.getElementById("incJ2D").value);
+    let decJ=parseInt(document.getElementById("decJ2D").value);
+    stepI2D=(incI>0)?incI:-decI;
+    stepJ2D=(incJ>0)?incJ:-decJ;
+    sum2D=parseFloat(document.getElementById("sum2DInitial").value)||0;
+    draw2D(-1,-1);
+    document.getElementById("sumDisplay2D").innerHTML="sum = "+sum2D;
+}
+function step2D(){
+    if((stepI2D>0 && i2D>endI2D)||(stepI2D<0 && i2D<endI2D)){
+        document.getElementById("status2D").innerHTML="Nested loop finished.";
+        return;
+    }
+    let value=arr2D[i2D][j2D];
+    let oldSum=sum2D;
+    sum2D+=value;
+    draw2D(i2D,j2D);
+    document.getElementById("status2D").innerHTML= "i="+i2D+" j="+j2D+" value="+value;
+    document.getElementById("sumDisplay2D").innerHTML= "sum = "+oldSum+" + "+value+" = "+sum2D;
+    j2D+=stepJ2D;
+    if((stepJ2D>0 && j2D>endJ2D)||(stepJ2D<0 && j2D<endJ2D)){
+        j2D=startJ2D;
+        i2D+=stepI2D;
+    }
+}
+function draw2D(rh,ch){
+    let html="<table>";
+    for(let r=0;r<rows2D;r++){
+        html+="<tr>";
+        for(let c=0;c<cols2D;c++){
+            let cls="";
+            if(r===rh && c===ch) cls="highlight2D";
+            html+=`<td class="${cls}">[${r}][${c}]<br>${arr2D[r][c]}</td>`;
+        }
+        html+="</tr>";
+    }
+    html+="</table>";
+    document.getElementById("display2D").innerHTML=html;
+}
+function reset2D(){
+    arr2D=[];
+    document.getElementById("display2D").innerHTML="";
+    document.getElementById("status2D").innerHTML="";
+    document.getElementById("sumDisplay2D").innerHTML="";
+    document.getElementById("input2D").innerHTML="";
+    clearError();
+}
+</script>
+</body>
+</html>
